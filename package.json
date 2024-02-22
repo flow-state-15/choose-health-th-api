@@ -7,7 +7,7 @@
     "node": "18.x"
   },
   "scripts": {
-    "start": "node src/index.js",
+    "start": "npm i && npm i -D && node src/index.js",
     "dev": "node src/index.js",
     "postbuild": "npx sequelize db:migrate && npx sequelize db:seed:all",
     "services": "docker compose up --build",
