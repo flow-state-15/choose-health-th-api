@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NODE_ENV=${NODE_ENV}
+
+  db:
+    image: "postgres:latest"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      NODE_ENV: ${NODE_ENV}
+    ports:
+      - "5432:5432"

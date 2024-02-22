@@ -1,0 +1,30 @@
+{
+  "name": "express-sequelize-api",
+  "version": "0.1.0",
+  "description": "express/sequelize/postgres api with docker",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node src/index.js",
+    "db:setup": "npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
+    "build": "docker compose build",
+    "services": "docker compose up --build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "dan purcell purcellgroup88@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "compression": "^1.7.4",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
+    "reflect-metadata": "^0.2.1",
+    "sequelize": "^6.36.0"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.2"
+  }
+}
