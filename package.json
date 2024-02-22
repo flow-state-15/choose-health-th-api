@@ -4,6 +4,7 @@
   "description": "express/sequelize/postgres api with docker",
   "main": "src/index.js",
   "scripts": {
+    "start": "node src/index.js",
     "dev": "node src/index.js",
     "db:setup": "npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
     "build": "docker compose build",

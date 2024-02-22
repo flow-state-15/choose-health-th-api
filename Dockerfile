@@ -8,6 +8,6 @@ RUN npm install --only=production
 
 COPY . .
 
-EXPOSE 8000
+EXPOSE ${PORT}
 
 CMD ["sh", "-c", "chmod +x start.sh && ./start.sh"]
