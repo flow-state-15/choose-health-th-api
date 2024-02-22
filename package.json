@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "express/sequelize/postgres api with docker",
   "main": "src/index.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "node src/index.js",
