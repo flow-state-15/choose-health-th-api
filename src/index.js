@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const morgan = require("morgan");
 const compression = require("compression");
 const helmet = require("helmet");
@@ -8,6 +9,7 @@ const { sequelize, User, Plan, Purchase } = require("../models");
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("short"));
