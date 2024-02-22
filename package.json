@@ -10,7 +10,6 @@
     "start": "node src/index.js",
     "dev": "node src/index.js",
     "db:setup": "npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
-    "build": "docker compose build",
     "services": "docker compose up --build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
