@@ -15,12 +15,22 @@ module.exports = {
     host: "127.0.0.1",
     dialect: "postgres",
   },
-  production: {
+  dockerLocal: {
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DB,
     host: process.env.DATABASE_HOST,
     use_env_variable: "DATABASE_URL",
     dialect: "postgres",
+  },
+  production: {
+    use_env_variable: "DATABASE_URL",
+    dialect: "postgres",
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
   },
 };

@@ -16,6 +16,15 @@ if (env === "production") {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Sequelize has connected to postgres database.");
+  })
+  .catch((err) => {
+    console.error("Unable to connect to the database:", err);
+  });
+
 fs.readdirSync(__dirname)
   .filter((file) => {
     return (
