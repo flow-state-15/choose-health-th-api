@@ -5,8 +5,8 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Purchase extends Model {
     static associate(models) {
-      Purchase.belongsToMany(models.User, { foreignKey: "userId", through: "Purchase" });
-      Purchase.belongsToMany(models.Plan, { foreignKey: "planId", through: "Purchase" });
+      Purchase.belongsTo(models.User, { foreignKey: "userId" });
+      Purchase.belongsTo(models.Plan, { foreignKey: "planId" });
     }
   }
 
@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       total: {
-        type: DataTypes.FLOAT(2),
+        type: new DataTypes.FLOAT(2),
         allowNull: false,
       },
       createdAt: {

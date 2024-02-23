@@ -16,15 +16,11 @@ module.exports = {
         primaryKey: true,
       },
       planName: {
-        type: Sequelize.STRING(128),
+        type: Sequelize.STRING,
         allowNull: false,
       },
       price: {
         type: Sequelize.FLOAT(2),
-        allowNull: false,
-      },
-      steps: {
-        type: Sequelize.STRING(255),
         allowNull: false,
       },
       createdAt: {

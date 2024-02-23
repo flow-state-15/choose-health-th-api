@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
   class Plan extends Model {
     static associate(models) {
       Plan.hasMany(models.User, { foreignKey: "planId", allowNull: true });
-      Plan.belongsToMany(models.Purchase, { foreignKey: "planId", through: "Purchase" });
+      Plan.hasMany(models.Step, { foreignKey: "planId", allowNull: false, onDelete: "CASCADE" });
+      Plan.belongsToMany(models.Purchase, { foreignKey: "planId", through: models.Purchase });
     }
   }
 
@@ -18,15 +19,11 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
       },
       planName: {
-        type: DataTypes.STRING(128),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       price: {
-        type: DataTypes.FLOAT(2),
-        allowNull: false,
-      },
-      steps: {
-        type: DataTypes.STRING(255),
+        type: new DataTypes.FLOAT(2),
         allowNull: false,
       },
       createdAt: {

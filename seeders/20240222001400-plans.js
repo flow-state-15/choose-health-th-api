@@ -14,16 +14,20 @@ module.exports = {
      */
     await queryInterface.bulkInsert("plans", [
       {
-        planName: "Basic",
-        price: 10.0,
-        steps: "Complete the Basic plan's steps.",
+        planName: "Basic Plan",
+        price: 10.00,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        planName: "Pro",
-        price: 20.0,
-        steps: "Complete the Pro plan's steps.",
+        planName: "Standard Plan",
+        price: 20.00,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        planName: "Premium Plan",
+        price: 40.00,
         createdAt: new Date(),
         updatedAt: new Date(),
       },

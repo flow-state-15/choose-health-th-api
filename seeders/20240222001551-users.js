@@ -14,10 +14,8 @@ module.exports = {
      */
     await queryInterface.bulkInsert("users", [
       {
-        name: "John Doe",
         email: "test1@test.test",
         password: "password",
-        planId: 1,
         planStepsCompleted: false,
         createdAt: new Date(),
         updatedAt: new Date(),

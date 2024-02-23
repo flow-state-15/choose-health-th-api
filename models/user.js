@@ -6,7 +6,9 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       User.belongsTo(models.Plan, { foreignKey: "planId", allowNull: true });
-      User.belongsToMany(models.Purchase, { foreignKey: "userId", through: "Purchase" });
+      User.belongsToMany(models.Purchase, { foreignKey: "userId", through: models.Purchase });
+      User.belongsToMany(models.Step, { foreignKey: "userId", through: models.UserPlanStep, onDelete: "CASCADE",
+      });
     }
   }
 
@@ -17,16 +19,12 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      name: {
-        type: new DataTypes.STRING(128),
-        allowNull: false,
-      },
       email: {
-        type: new DataTypes.STRING(128),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       password: {
-        type: new DataTypes.TEXT(),
+        type: DataTypes.TEXT,
         allowNull: false,
       },
       planId: {
