@@ -10,7 +10,7 @@
     "start": "node src/index.js",
     "build": "npm install && npm install -D",
     "dev": "node src/index.js",
-    "heroku-postbuild": "npx sequelize db:seed:undo:all && npx sequelize db:migrate:undo:all && npx sequelize db:migrate && npx sequelize db:seed:all",
+    "heroku-postbuild": "npx sequelize db:migrate && npx sequelize db:seed:all",
     "services": "docker compose up --build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
