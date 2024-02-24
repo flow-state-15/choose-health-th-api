@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   class Step extends Model {
     static associate(models) {
       Step.belongsTo(models.Plan, { foreignKey: "planId", allowNull: false });
-      Step.belongsToMany(models.User, { foreignKey: "stepId", through: models.UserPlanStep });
+      Step.hasMany(models.UserPlanStep, { foreignKey: "stepId", allowNull: false });
     }
   }
 
@@ -32,6 +32,16 @@ module.exports = (sequelize, DataTypes) => {
           model: "plans",
           key: "id",
         },
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
       },
     },
     {

@@ -13,7 +13,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.NODE_ENV === "production" ? "" : "http://localhost:5173",
+    origin: process.env.NODE_ENV === "production" ? "*" : "http://localhost:5173",
     credentials: true,
   })
 );
@@ -136,11 +136,11 @@ app.get("/user/plan", async (req, res) => {
       {
         model: UserPlanStep,
         as: "userPlanSteps",
-        attributes: ["id", "completed", "stepId", "updatedAt"],
+        where: { userId: user.id, planId: user.planId },
       },
     ],
   });
-  console.log("Plan: ", plan);
+
   if (!plan) {
     return res.status(404).json({ message: "Plan not found" });
   }
@@ -163,7 +163,7 @@ app.get("/user/purchases", async (req, res) => {
 
 app.patch("/user/step/:stepId", async (req, res) => {
   const { stepId } = req.params;
-  const step = await UserPlanStep.findByPk(stepId);
+  const step = await UserPlanStep.findByPk(stepId, { where: { userId: req.user.id } });
 
   if (!step) {
     return res.status(400).json({ message: "Step not found" });
@@ -175,7 +175,7 @@ app.patch("/user/step/:stepId", async (req, res) => {
 
 app.delete("/user/step/:stepId", async (req, res) => {
   const { stepId } = req.params;
-  const step = await UserPlanStep.findByPk(stepId);
+  const step = await UserPlanStep.findByPk(stepId, { where: { userId: req.user.id } });
 
   if (!step) {
     return res.status(400).json({ message: "Step not found" });
@@ -188,15 +188,55 @@ app.delete("/user/step/:stepId", async (req, res) => {
 app.post("/purchase", async (req, res) => {
   const { planId } = req.body;
   const user = req.user;
-  const plan = await Plan.findByPk(planId);
+
+  if (user.planId) {
+    try {
+      const plan = await Plan.findByPk(user.planId, {
+        include: [
+          {
+            model: UserPlanStep,
+            as: "userPlanSteps",
+            where: { userId: user.id, planId: user.planId },
+          },
+        ],
+      });
+
+      await Promise.all(
+        plan.userPlanSteps.map((step) => {
+          return step.destroy();
+        })
+      );
+    } catch (e) {
+      return res.status(500).json({ message: "Error processing the purchase.", error: e });
+    }
+  }
+
+  const plan = await Plan.findByPk(planId, {
+    include: [
+      {
+        model: Step,
+        as: "steps",
+      },
+    ],
+  });
 
   if (!plan) {
     return res.status(400).json({ message: "Plan not found" });
   }
 
   const purchase = await Purchase.create({ userId: user.id, planId: plan.id, total: plan.price });
+  const userPlanSteps = await Promise.all(
+    plan.steps.map((step) => {
+      return UserPlanStep.create({ userId: user.id, planId: plan.id, stepId: step.id });
+    })
+  );
+
+  if (!purchase || !userPlanSteps) {
+    return res.status(500).json({ message: "Error processing the purchase." });
+  }
+
   await user.update({ planId: plan.id });
-  res.json({ message: "success", receipt: purchase });
+  res.json({ message: "success", purchase });
 });
 
 const PORT = process.env.PORT || 8000;
