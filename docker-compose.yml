@@ -22,5 +22,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       NODE_ENV: ${NODE_ENV}
+      DB_HOST: ${DB_HOST}
     ports:
       - "5432:5432"

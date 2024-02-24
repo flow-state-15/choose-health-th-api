@@ -6,9 +6,10 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       User.belongsTo(models.Plan, { foreignKey: "planId", allowNull: true });
-      User.belongsToMany(models.Purchase, { foreignKey: "userId", through: models.Purchase });
-      User.belongsToMany(models.Step, { foreignKey: "userId", through: models.UserPlanStep, onDelete: "CASCADE",
-      });
+      User.hasMany(models.UserPlanStep, { foreignKey: "userId", onDelete: "CASCADE", as: 'planSteps' })
+      User.hasMany(models.Purchase, { foreignKey: "userId" });
+      // User.belongsToMany(models.Step, { foreignKey: "userId", through: models.UserPlanStep, onDelete: "CASCADE",
+      // });
     }
   }
 
