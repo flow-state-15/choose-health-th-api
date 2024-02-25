@@ -66,6 +66,7 @@ exports.logout = asyncHandler(async (req, res) => {
 // protected routes middleware
 exports.protected = asyncHandler(async (req, res, next) => {
   const { token } = req.cookies;
+  console.log(">>> token", token);
   if (!token) {
     req.user = null;
     res.clearCookie("token");
