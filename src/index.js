@@ -12,7 +12,10 @@ const app = express();
 app.use(
   cors({
     //!! todo: change * to vercel frontend url
-    origin: process.env.NODE_ENV === "production" ? "*" : "http://localhost:5173",
+    origin:
+      process.env.NODE_ENV === "production"
+        ? "https://choose-health-th-frontend.vercel.app/"
+        : "http://localhost:5173",
     credentials: true,
   })
 );
