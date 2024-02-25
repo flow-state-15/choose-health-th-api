@@ -14,7 +14,7 @@ app.use(
     //!! todo: change * to vercel frontend url
     origin:
       process.env.NODE_ENV === "production"
-        ? "https://choose-health-th-frontend.vercel.app/"
+        ? process.env.FRONTEND_URL
         : "http://localhost:5173",
     credentials: true,
   })
