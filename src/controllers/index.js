@@ -13,7 +13,7 @@ exports.login = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
-  res.cookie("token", user.dataValues.token);
+  res.cookie("token", user.dataValues.token, { sameSite: "none", secure: true });
   delete user.dataValues.password;
   delete user.dataValues.token;
   delete user.dataValues.createdAt;
@@ -54,7 +54,7 @@ exports.signup = asyncHandler(async (req, res) => {
   delete user.dataValues.token;
   delete user.dataValues.createdAt;
   delete user.dataValues.updatedAt;
-  res.cookie("token", newToken);
+  res.cookie("token", newToken, { sameSite: "none", secure: true });
   res.json({ message: "Signup successful", user });
 });
 
