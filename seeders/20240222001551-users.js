@@ -1,5 +1,7 @@
 "use strict";
 
+const crypto = require("crypto");
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -16,6 +18,7 @@ module.exports = {
       {
         email: "test1@test.test",
         password: "password",
+        token: crypto.randomBytes(64).toString("hex"),
         planId: 1,
         planStepsCompleted: false,
         createdAt: new Date(),

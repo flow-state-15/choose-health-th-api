@@ -23,6 +23,10 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+      token: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
       planId: {
         type: Sequelize.INTEGER,
         allowNull: true,

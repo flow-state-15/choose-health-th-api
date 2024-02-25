@@ -13,6 +13,7 @@ const app = express();
 
 app.use(
   cors({
+    //!! todo: change * to vercel frontend url
     origin: process.env.NODE_ENV === "production" ? "*" : "http://localhost:5173",
     credentials: true,
   })
@@ -23,9 +24,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("short"));
 app.use(compression());
 app.use(helmet());
-
-// todo: convert to storing tokens in user table
-const sessionUsers = {};
 
 // public routes
 
@@ -45,16 +43,36 @@ app.post("/login", async (req, res) => {
   const user = await User.findOne({ where: { email, password } });
 
   if (!user) {
+    res.clearCookie("token");
     return res.status(401).json({ message: "Invalid credentials" });
   }
-  const { token } = req.cookies || {};
-  if (token) {
-    delete sessionUsers[token];
+
+  // const newToken = crypto.randomBytes(64).toString("hex");
+  // await user.update({ token: newToken });
+  console.log(">>>>>> user.dataValues: ", user.dataValues);
+  res.cookie("token", user.dataValues.token, { httpOnly: true, sameSite: "lax" });
+  delete user.dataValues.password;
+  delete user.dataValues.token;
+  delete user.dataValues.createdAt;
+  delete user.dataValues.updatedAt;
+  res.json({ message: "Login successful", user });
+});
+
+app.get("/restore", async (req, res) => {
+  const { token } = req.cookies;
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+  const user = await User.findOne({ where: { token }, attributes: ["id", "email", "planId"] });
+
+  if (!user) {
+    res.clearCookie("token");
+    return res.status(401).json({ message: "Unauthorized" });
   }
-  const newToken = crypto.randomBytes(64).toString("hex");
-  sessionUsers[newToken] = user.id;
-  res.cookie("token", newToken, { httpOnly: true, sameSite: "lax" });
-  res.json({ message: "Login successful" });
+
+  // const newToken = crypto.randomBytes(64).toString("hex");
+  // await user.update({ token: newToken });
+  // res.cookie("token", newToken, { httpOnly: true, sameSite: "lax" });
+  res.json({ message: "success", user });
 });
 
 app.post("/signup", async (req, res) => {
@@ -65,23 +83,22 @@ app.post("/signup", async (req, res) => {
   } else if (!password || password.length < 6) {
     return res.status(400).json({ message: "Password must be 6 or more characters long." });
   }
-  const { token } = req.cookies || {};
 
-  if (token) {
-    delete sessionUsers[token];
+  const newToken = crypto.randomBytes(64).toString("hex");
+  const user = await User.create({ email, password, token: newToken });
+  if (!user) {
+    return res.status(400).json({ message: "Error creating user" });
   }
 
-  const user = await User.create({ email, password });
-  const newToken = crypto.randomBytes(64).toString("hex");
-  sessionUsers[newToken] = user.id;
+  delete user.dataValues.password;
+  delete user.dataValues.token;
+  delete user.dataValues.createdAt;
+  delete user.dataValues.updatedAt;
   res.cookie("token", newToken, { httpOnly: true, sameSite: "lax" });
   res.json({ message: "Signup successful", user });
 });
 
 app.post("/logout", async (req, res) => {
-  const { token } = req.cookies;
-  if (token) delete sessionUsers[token];
-  req.user = null;
   res.clearCookie("token");
   res.json({ message: "Logout successful" });
 });
@@ -89,25 +106,22 @@ app.post("/logout", async (req, res) => {
 // protected routes
 
 app.use(async (req, res, next) => {
-  console.log("Cookies: ", req.cookies);
-  console.log("Session Users: ", sessionUsers);
-  const { token } = req.cookies || {};
-  if (!req.cookies || !token) {
+  const { token } = req.cookies;
+  console.log(">>>>>> TOKEN: ", token);
+  if (!token) {
     req.user = null;
     res.clearCookie("token");
-    if (req.cookies.user) {
-      res.clearCookie("user");
-    }
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const user = await User.findByPk(sessionUsers[token]);
+  const user = await User.findOne({ where: { token } });
   if (!user) {
+    console.log(">>>>>> USER NOT FOUND: ", user);
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  sessionUsers[token] = user.id;
   req.user = user;
+  console.log(">>>>>> REQ USER: ", req.user);
   next();
 });
 
@@ -162,26 +176,36 @@ app.get("/user/purchases", async (req, res) => {
 });
 
 app.patch("/user/step/:stepId", async (req, res) => {
+  const user = req.user;
   const { stepId } = req.params;
-  const step = await UserPlanStep.findByPk(stepId, { where: { userId: req.user.id } });
+  const { completed } = req.body;
 
-  if (!step) {
+  console.log(">>> user: ", user);
+
+  const allSteps = await UserPlanStep.findAll({
+    where: { userId: user.id, planId: user.planId },
+    include: [{ model: Step }],
+  });
+  console.log(">>> allSteps: ", allSteps);
+
+  const step = allSteps.find((userStep) => userStep.dataValues.id === +stepId);
+  console.log(">>> step: ", step);
+
+  if (!step || !allSteps) {
     return res.status(400).json({ message: "Step not found" });
   }
 
-  await step.update({ completed: true });
-  res.json({ message: "success", step });
-});
-
-app.delete("/user/step/:stepId", async (req, res) => {
-  const { stepId } = req.params;
-  const step = await UserPlanStep.findByPk(stepId, { where: { userId: req.user.id } });
-
-  if (!step) {
-    return res.status(400).json({ message: "Step not found" });
+  if (step.Step.dataValues.order > 1) {
+    const previousStep = allSteps.find(
+      (userStep) => step.Step.dataValues.order - 1 === userStep.Step.dataValues.order - 1
+    );
+    console.log(">>> previousStep: ", previousStep);
+    if (!previousStep.dataValues.completed) {
+      return res.status(400).json({ message: "Previous step not completed" });
+    }
   }
 
-  await step.update({ completed: false });
+  await step.update({ completed });
   res.json({ message: "success", step });
 });
 
@@ -210,7 +234,6 @@ app.post("/purchase", async (req, res) => {
       return res.status(500).json({ message: "Error processing the purchase.", error: e });
     }
   }
-
   const plan = await Plan.findByPk(planId, {
     include: [
       {

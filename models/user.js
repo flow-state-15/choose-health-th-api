@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
+      token: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
       planId: {
         type: DataTypes.INTEGER,
         allowNull: true,
