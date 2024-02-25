@@ -11,7 +11,6 @@ const app = express();
 
 app.use(
   cors({
-    //!! todo: change * to vercel frontend url
     origin:
       process.env.NODE_ENV === "production"
         ? process.env.FRONTEND_URL
